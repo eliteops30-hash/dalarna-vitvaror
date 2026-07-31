@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Andra Varvet Vitvaror</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --steel-dark:#20242a;
+    --steel:#3a4149;
+    --metal:#c9cdd2;
+    --paper:#f2f0eb;
+    --signal:#d9480f;
+    --signal-dim:#a83c10;
+    --ok:#4f7942;
+    --line:#2b2f33;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--steel-dark);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.disp{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:0.02em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  header{
+    background:var(--steel-dark);
+    color:var(--paper);
+    padding:22px 20px 20px;
+    position:relative;
+    border-bottom:4px solid var(--signal);
+  }
+  header .top-row{display:flex;justify-content:space-between;align-items:flex-start;}
+  header .brand{font-size:1.5rem;font-weight:600;letter-spacing:0.03em;}
+  header .brand small{display:block;font-family:'IBM Plex Mono',monospace;text-transform:none;letter-spacing:0;font-size:0.65rem;color:var(--metal);margin-top:2px;}
+  .admin-toggle{
+    background:none;border:1px solid var(--metal);color:var(--metal);
+    font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
+    padding:6px 10px;border-radius:3px;cursor:pointer;letter-spacing:0.05em;
+  }
+  .admin-toggle:hover{border-color:var(--signal);color:var(--signal);}
+  .tagline{margin-top:14px;font-size:0.85rem;color:var(--metal);max-width:32ch;line-height:1.4;}
+
+  main{max-width:720px;margin:0 auto;padding:20px 16px 60px;}
+
+  .plate-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px;}
+  @media(min-width:560px){.plate-grid{grid-template-columns:1fr 1fr;}}
+
+  .plate{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:2px;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .plate:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.12);}
+  .plate-img{
+    height:130px;
+    background:linear-gradient(135deg,var(--metal),#dfe2e5);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2.4rem;
+  }
+  .plate-body{padding:14px 14px 16px;flex:1;display:flex;flex-direction:column;}
+  .plate-title{font-size:1.05rem;font-weight:600;}
+  .plate-sub{font-size:0.75rem;color:var(--steel);margin-top:2px;}
+
+  .spec-strip{
+    margin-top:10px;
+    border-top:1px dashed #b8bcc0;
+    border-bottom:1px dashed #b8bcc0;
+    padding:8px 0;
+    display:flex;justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.7rem;
+    color:var(--steel);
+  }
+  .spec-strip span b{color:var(--steel-dark);font-size:0.78rem;}
+
+  .price-row{
+    margin-top:10px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .price{font-family:'IBM Plex Mono',monospace;font-size:1.3rem;font-weight:600;}
+  .price small{font-size:0.65rem;font-weight:400;color:var(--steel);display:block;margin-top:1px;}
+
+  .order-btn{
+    margin-top:12px;
+    background:var(--signal);
+    color:#fff;border:none;
+    padding:10px 14px;
+    font-family:'Oswald',sans-serif;
+    text-transform:uppercase;letter-spacing:0.04em;
+    font-size:0.85rem;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .order-btn:hover{background:var(--signal-dim);}
+  .order-btn:disabled{background:#9a9d9f;cursor:default;}
+
+  /* Modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(20,22,25,0.55);
+    display:none;align-items:flex-end;justify-content:center;z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .sheet{
+    background:var(--paper);width:100%;max-width:480px;
+    border-radius:10px 10px 0 0;
+    padding:20px 20px 26px;
+    animation:slideup .18s ease-out;
+    border-top:4px solid var(--signal);
+  }
+  @keyframes slideup{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .sheet h3{font-size:1.1rem;margin-bottom:2px;}
+  .sheet .sub{font-size:0.75rem;color:var(--steel);margin-bottom:16px;}
+  label{display:block;font-size:0.72rem;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;color:var(--steel);margin:12px 0 5px;}
+  input, textarea{
+    width:100%;border:1px solid #b8bcc0;background:#fff;
+    padding:10px 10px;font-family:'Inter',sans-serif;font-size:0.9rem;border-radius:3px;
+  }
+  input:focus, textarea:focus{outline:2px solid var(--signal);outline-offset:1px;border-color:var(--signal);}
+  .sheet-actions{display:flex;gap:10px;margin-top:18px;}
+  .btn-secondary{
+    flex:1;background:none;border:1px solid var(--steel);color:var(--steel-dark);
+    padding:10px;border-radius:3px;font-family:'Oswald',sans-serif;text-transform:uppercase;
+    font-size:0.85rem;cursor:pointer;
+  }
+  .btn-primary{
+    flex:2;background:var(--steel-dark);color:#fff;border:none;
+    padding:10px;border-radius:3px;font-family:'Oswald',sans-serif;text-transform:uppercase;
+    font-size:0.85rem;cursor:pointer;
+  }
+  .btn-primary:hover{background:#000;}
+
+  /* Confirmation */
+  .confirm{display:none;text-align:center;padding:10px 0 4px;}
+  .confirm.show{display:block;}
+  .confirm .stamp{
+    display:inline-block;border:2px solid var(--ok);color:var(--ok);
+    font-family:'IBM Plex Mono',monospace;font-size:0.7rem;letter-spacing:0.08em;
+    padding:4px 10px;border-radius:3px;transform:rotate(-2deg);margin-bottom:12px;
+  }
+  .confirm .order-id{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--steel);margin-top:6px;}
+
+  /* Admin view */
+  .admin-panel{margin-top:18px;}
+  .admin-empty{
+    border:1px dashed #b8bcc0;padding:30px 16px;text-align:center;color:var(--steel);
+    font-size:0.85rem;border-radius:4px;
+  }
+  .order-card{
+    background:#fff;border:1px solid var(--line);border-left:4px solid var(--signal);
+    border-radius:2px;padding:12px 14px;margin-bottom:10px;
+  }
+  .order-card .row1{display:flex;justify-content:space-between;align-items:baseline;}
+  .order-card .who{font-weight:600;font-size:0.95rem;}
+  .order-card .when{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--steel);}
+  .order-card .what{margin-top:4px;font-size:0.85rem;}
+  .order-card .phone{margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;}
+  .order-card .phone a{color:var(--signal);text-decoration:none;}
+  .order-card .status-row{margin-top:10px;display:flex;gap:8px;}
+  .status-btn{
+    font-family:'IBM Plex Mono',monospace;font-size:0.68rem;padding:5px 9px;border-radius:3px;
+    border:1px solid #b8bcc0;background:#fff;cursor:pointer;
+  }
+  .status-btn.active{background:var(--steel-dark);color:#fff;border-color:var(--steel-dark);}
+
+  .note{
+    margin-top:26px;font-size:0.72rem;color:var(--steel);line-height:1.5;
+    border-top:1px solid #d5d2c9;padding-top:14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top-row">
+    <div class="brand">Andra Varvet<small>VITVAROR &middot; BEGAGNAT, TESTAT, PRISVÄRT</small></div>
+    <button class="admin-toggle" id="adminToggle">MINA ORDRAR</button>
+  </div>
+  <p class="tagline">Beställ på sidan. Vi hör av oss och bestämmer tid för hämtning &mdash; betalning sker med Swish eller kontant när ni ses.</p>
+</header>
+
+<main>
+  <div id="shopView">
+    <div class="plate-grid" id="productGrid"></div>
+  </div>
+
+  <div id="adminView" style="display:none;">
+    <h2 style="font-size:1.1rem;margin-top:4px;">Inkomna beställningar</h2>
+    <div class="admin-panel" id="adminPanel"></div>
+  </div>
+
+  <p class="note">Detta är en prototyp som visar hur sidan kan se ut och fungera. Beställningar sparas bara i webbläsarens minne just nu &mdash; i den riktiga versionen kopplas det till en databas så du får en notis (t.ex. sms eller mejl) direkt i mobilen när någon beställer.</p>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div id="formStep">
+      <h3 id="sheetTitle">Beställ</h3>
+      <p class="sub" id="sheetSub"></p>
+      <form id="orderForm">
+        <label for="name">Namn</label>
+        <input type="text" id="name" required placeholder="För- och efternamn">
+        <label for="phone">Telefonnummer</label>
+        <input type="tel" id="phone" required placeholder="070-123 45 67">
+        <label for="pickup">Önskad hämtdag (valfritt)</label>
+        <input type="text" id="pickup" placeholder="T.ex. helgen, torsdag kväll...">
+        <div class="sheet-actions">
+          <button type="button" class="btn-secondary" id="cancelBtn">Avbryt</button>
+          <button type="submit" class="btn-primary">Skicka beställning</button>
+        </div>
+      </form>
+    </div>
+    <div class="confirm" id="confirmStep">
+      <div class="stamp">BESTÄLLNING MOTTAGEN</div>
+      <h3>Tack, <span id="confirmName"></span>!</h3>
+      <p class="sub">Vi hör av oss på <span id="confirmPhone"></span> för att bestämma tid för hämtning och betalning.</p>
+      <p class="order-id">ORDER-ID: <span id="confirmId"></span></p>
+      <div class="sheet-actions">
+        <button type="button" class="btn-primary" id="closeConfirm" style="flex:1;">Stäng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const products = [
+  {id:'p1', name:'Bosch Tvättmaskin', sub:'Serie 4, 7kg', icon:'🌀', cond:'MYCKET GOTT SKICK', age:'3 år', price:1800},
+  {id:'p2', name:'Electrolux Kylskåp', sub:'186cm, no-frost', icon:'🧊', cond:'GOTT SKICK', age:'5 år', price:2200},
+  {id:'p3', name:'Siemens Diskmaskin', sub:'Integrerad, 60cm', icon:'🍽️', cond:'NYSKICK', age:'1 år', price:2600},
+  {id:'p4', name:'Whirlpool Torktumlare', sub:'Värmepump, 8kg', icon:'🔥', cond:'GOTT SKICK', age:'4 år', price:1500},
+];
+
+let orders = [];
+let orderCounter = 1024;
+let activeProduct = null;
+
+const grid = document.getElementById('productGrid');
+function renderProducts(){
+  grid.innerHTML = products.map(p => `
+    <div class="plate">
+      <div class="plate-img">${p.icon}</div>
+      <div class="plate-body">
+        <div class="plate-title">${p.name}</div>
+        <div class="plate-sub">${p.sub}</div>
+        <div class="spec-strip">
+          <span>SKICK<br><b>${p.cond}</b></span>
+          <span>ÅLDER<br><b>${p.age}</b></span>
+        </div>
+        <div class="price-row">
+          <div class="price">${p.price} kr<small>hämtpris</small></div>
+        </div>
+        <button class="order-btn" data-id="${p.id}">Beställ</button>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.order-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>openOrderForm(btn.dataset.id));
+  });
+}
+
+function openOrderForm(id){
+  activeProduct = products.find(p=>p.id===id);
+  document.getElementById('sheetTitle').textContent = 'Beställ: ' + activeProduct.name;
+  document.getElementById('sheetSub').textContent = activeProduct.price + ' kr, betalas vid hämtning.';
+  document.getElementById('formStep').style.display = 'block';
+  document.getElementById('confirmStep').classList.remove('show');
+  document.getElementById('orderForm').reset();
+  document.getElementById('overlay').classList.add('show');
+}
+
+document.getElementById('cancelBtn').addEventListener('click', ()=>{
+  document.getElementById('overlay').classList.remove('show');
+});
+document.getElementById('overlay').addEventListener('click', (e)=>{
+  if(e.target.id==='overlay') document.getElementById('overlay').classList.remove('show');
+});
+
+document.getElementById('orderForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const pickup = document.getElementById('pickup').value.trim();
+  orderCounter++;
+  const order = {
+    id: 'OV-' + orderCounter,
+    product: activeProduct.name,
+    price: activeProduct.price,
+    name, phone, pickup,
+    time: new Date(),
+    status: 'Ny'
+  };
+  orders.unshift(order);
+  document.getElementById('formStep').style.display = 'none';
+  document.getElementById('confirmStep').classList.add('show');
+  document.getElementById('confirmName').textContent = name;
+  document.getElementById('confirmPhone').textContent = phone;
+  document.getElementById('confirmId').textContent = order.id;
+  renderAdmin();
+});
+
+document.getElementById('closeConfirm').addEventListener('click', ()=>{
+  document.getElementById('overlay').classList.remove('show');
+});
+
+const statuses = ['Ny','Bokad','Klar'];
+function renderAdmin(){
+  const panel = document.getElementById('adminPanel');
+  if(orders.length===0){
+    panel.innerHTML = '<div class="admin-empty">Inga beställningar än. När någon beställer dyker det upp här &mdash; och i den riktiga versionen får du en notis direkt i mobilen.</div>';
+    return;
+  }
+  panel.innerHTML = orders.map((o,idx)=>`
+    <div class="order-card">
+      <div class="row1">
+        <div class="who">${o.name}</div>
+        <div class="when">${o.time.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div class="what">${o.product} &middot; <span class="mono">${o.price} kr</span>${o.pickup ? ' &middot; Önskar: '+o.pickup : ''}</div>
+      <div class="phone">📞 <a href="tel:${o.phone}">${o.phone}</a></div>
+      <div class="status-row">
+        ${statuses.map(s=>`<button class="status-btn ${o.status===s?'active':''}" data-idx="${idx}" data-status="${s}">${s}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  panel.querySelectorAll('.status-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      orders[btn.dataset.idx].status = btn.dataset.status;
+      renderAdmin();
+    });
+  });
+}
+
+let showingAdmin = false;
+document.getElementById('adminToggle').addEventListener('click', ()=>{
+  showingAdmin = !showingAdmin;
+  document.getElementById('shopView').style.display = showingAdmin ? 'none' : 'block';
+  document.getElementById('adminView').style.display = showingAdmin ? 'block' : 'none';
+  document.getElementById('adminToggle').textContent = showingAdmin ? 'TILLBAKA TILL BUTIK' : 'MINA ORDRAR';
+  document.getElementById('adminToggle').style.color = showingAdmin ? 'var(--signal)' : 'var(--metal)';
+  document.getElementById('adminToggle').style.borderColor = showingAdmin ? 'var(--signal)' : 'var(--metal)';
+});
+
+renderProducts();
+renderAdmin();
+</script>
+
+</body>
+</html>
